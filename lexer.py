@@ -91,7 +91,17 @@ class Stream:
     
     def colcar_posicion(self, new_pos):
         self.pos = new_pos
-    
+        
+def is_digit(string:str)->bool:
+    """ Esta funcion verifica el primer caracter de un string sea un dígito"""
+    if len(string)>0:
+        digit = string[0]
+        if digit >= "0" and digit <= "9":
+            return True
+    else:
+        return False
+
+
 
 def lexer_variable (stream:Stream)->Optional[Variable]:
     acc:[str]=[]
@@ -124,3 +134,84 @@ def lexer_variable (stream:Stream)->Optional[Variable]:
             return None
 
 print(lexer_variable(Stream("_augiugk$b")))    
+
+
+def lexer_int(stream:Stream)->Optional[Int]:
+    acc:[str]=[]
+    orig_post=stream.get_posicion()
+    num = stream.get_char()
+    if num is None:
+        return None
+    else: 
+        if num == "-":
+            acc.append(num)
+            stream.consume()
+            num = stream.get_char()
+            if is_digit(num) :
+                while is_digit(num):
+                    acc.append(num)
+                    stream.consume()
+                    num = stream.get_char()
+                    if num is None:
+                        break
+            else: 
+                stream.colcar_posicion(orig_post)
+                return None
+        elif is_digit(num):
+            while is_digit(num):
+                acc.append(num)
+                stream.consume()
+                num = stream.get_char()
+                if num is None:
+                    break
+            stream.colcar_posicion(orig_post)
+        else:
+            stream.colcar_posicion(orig_post)
+            return None
+    return Int(int("".join(acc)))  
+            
+print(lexer_int(Stream("-121+3-4"))) 
+        
+b = Stream("_fgsfds-56365")
+print(b,"b")
+t = lexer_int(b)
+print(b,"b")
+print(t,"t")
+p =lexer_variable(b)
+print(p,"p")
+print(b,"b")
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

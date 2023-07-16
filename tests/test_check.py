@@ -7,6 +7,22 @@ Created on Sat Jul 15 15:07:42 2023
 from Typinglexer.lexer import Stream, Operator, Int, Variable
 from Typinglexer.lexer import lexer_operator, lexer_variable, lexer_int
 
+def prueba_regresa_None(lexer, cadena_prueba:str):
+    stream_prueba = Stream(cadena_prueba)
+    get_none = lexer(stream_prueba) 
+    assert get_none is None
+
+    
+#########################################################
+
+def prueba_regresa_some(lexer, cadena_prueba:str,expect):
+    stream_prueba = Stream(cadena_prueba)
+    get_some = lexer(stream_prueba) 
+    
+    assert get_some == expect
+
+    
+#########################################################
 
 def test_get_None_Operator():
     prueba_regresa_None(lexer_operator, "2dfsg")    
@@ -33,49 +49,79 @@ def test_get_None_Void_Int():
 
 #########################################################
  
-def test_regresa_Int_negativo():
+def test_get_Int_negativo():
     
     assert prueba_int("-4") == Int(-4)
-    
+#########################################################
 def prueba_int(p):
     b = Stream(p)
     return lexer_int(b)
 
 #########################################################
  
-def test_regresa_some_variable():
+def test_get_some_variable():
     
     prueba_regresa_some(lexer_variable,"hola-a",Variable("hola"))
 
 #########################################################
-def test_regresa_some_int():
+def test_get_some_int():
     
     prueba_regresa_some(lexer_int,"43-2",Int(43))
     
 #########################################################
-def test_regresa_some_operator():
+def test_get_some_operator():
     
     prueba_regresa_some(lexer_operator,"+ad",Operator("+"))
 
 
 #########################################################
-def prueba_regresa_None(lexer, cadena_prueba:str):
-    stream_prueba = Stream(cadena_prueba)
-    get_none = lexer(stream_prueba) 
-    assert get_none is None
+def test_get_one_variable():
+    
+    prueba_regresa_some(lexer_variable,"q",Variable("q"))
 
+#########################################################
+def test_get_one_int():
+    
+    prueba_regresa_some(lexer_int,"4",Int(4))
     
 #########################################################
-
-def prueba_regresa_some(lexer, cadena_prueba:str,expect):
-    stream_prueba = Stream(cadena_prueba)
-    get_some = lexer(stream_prueba) 
+def test_get_one_operator():
     
-    assert get_some == expect
+    prueba_regresa_some(lexer_operator,"*",Operator("*"))
 
+#########################################################
+def test_get_some1_variable():
+    
+    prueba_regresa_some(lexer_variable,"qwerwerqwerwerqwerwerqwerwerqwerwer",Variable("qwerwerqwerwerqwerwerqwerwerqwerwer"))
+
+#########################################################
+def test_get_some1_int():
+    
+    prueba_regresa_some(lexer_int,"1234567890",Int(1234567890))
     
 #########################################################
+def test_get_some1_operator():
+    
+    prueba_regresa_some(lexer_operator,"*+*+*+*+*+",Operator("*"))
 
+
+#########################################################
+def test_get_None_variable():
+    
+    prueba_regresa_None(lexer_variable,"98274*59872")
+
+#########################################################
+def test_get_None_int():
+    
+    prueba_regresa_None(lexer_int,"MOises")
+    
+#########################################################
+def test_get_None_operator():
+    
+    prueba_regresa_None(lexer_operator,"24fq3gouh")
+
+
+#########################################################
 
 
 

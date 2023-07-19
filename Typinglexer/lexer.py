@@ -67,38 +67,31 @@ class UnitType:
     pass
 
 @dataclass
-#Clase para recibir cadena de caracteres y la posiicon del carecter que se esta leyendo 
 class Stream:
     value:str
     pos: int
-    
     def __init__(self,value:str):
         self.pos = 0
         self.value=value
-    
-        #Funcion que obtiene el caracter en la posicion "pos" de la cadena original
+        
     def get_char(self)->Optional[str]:
         if len(self.value)>self.pos:
             return self.value[self.pos]
         else:
             #Esta parte podria saltarse y dejar que solo retorne None
             return None 
-    #Funcion que aumenta la posicion del carecter a leer
     def consume(self):
         self.pos+=1   
-    #FUncion que retorna el string de la clase
+        
     def get_string(self):
         return str(self.value)
-    #Funcion que regresa la posicion del caracter a leer
+        
     def get_posicion(self):
         return self.pos
-    #Funcion que reescribe la poscion del caracter a leer
     
     def colcar_posicion(self, new_pos):
         self.pos = new_pos
         
-        
- #Funcion que verifica que el caraceter ingresado es un digito       
 def is_digit(string:str)->bool:
     """ Esta funcion verifica el primer caracter de un string sea un dígito"""
     if len(string)>0:
@@ -109,24 +102,9 @@ def is_digit(string:str)->bool:
             return False
     else:
         return False
-    
-def is_operator(string:str)->bool:
-    """ Esta funcion verifica el primer caracter de un string sea un dígito"""
-    if len(string)>0:
-        ope = string[0]
-        if ope == "*" or ope == "+" or ope == "-" or ope == "=" or ope == "<" or ope == "^" or ope == "/":
-            return True
-        else: 
-            return False
-    else:
-        return False
 
 
 
-
-
-#Funcion que verifica que el caracter leido sea de la clase Variable 
-# y regresa el segemnto de l string que sea del Variable
 def lexer_variable (stream:Stream)->Optional[Variable]:
     acc:list[str]=[]
     orig_post=stream.get_posicion()
@@ -158,8 +136,6 @@ def lexer_variable (stream:Stream)->Optional[Variable]:
             return None  
 
 
-#Funcion que verifica que el caracter leido sea de la clase Int
-# y regresa el segemnto del string que sea del tipo Int
 def lexer_int(stream:Stream)->Optional[Int]:
     acc:list[str]=[]
     orig_post=stream.get_posicion()
@@ -196,55 +172,27 @@ def lexer_int(stream:Stream)->Optional[Int]:
             return None
     return Int(int("".join(acc)))  
 
-
-#Funcion que verifica que el caracter leido sea de la clase Operator
-# y regresa el segemnto del string que sea del tipo Operator
 def lexer_operator(stream:Stream)->Optional[Operator]:
-
-    acc:list[str]=[]
+    listt= ["+","*","=","/","^"]
     orig_post=stream.get_posicion()
-    oper = stream.get_char()
-    print(oper)
-    if oper is None:
+    ope = stream.get_char()
+    #print(ope)
+    if ope is None:
         return None
-    else: 
-        if oper == "=":
-            acc.append(oper)
+    else:
+        if ope in listt: 
             stream.consume()
-            oper = stream.get_char()
-            print(oper)
-            if oper is not None:
-                if is_operator(oper) :
-                    while is_operator(oper):
-                        
-                        acc.append(oper)
-                        
-                        stream.consume()
-                        oper = stream.get_char()
-                        if oper is None:
-                            break
-                else:
-                    return None
-            else: 
-                stream.colcar_posicion(orig_post)
-                return None
-        elif is_operator(oper):
-            while is_operator(oper):
-                acc.append(oper)
-                stream.consume()
-                oper = stream.get_char()
-                if oper is None:
-                    break
+            #print(ope)
+            return Operator(ope)
         else:
             stream.colcar_posicion(orig_post)
             return None
-    return Operator(str("".join(acc)))  
 
-
+    
             
 #print(lexer_int(Stream("-121+3-4"))) 
 def main():   
-    b = Stream("2a^++q29=+a83*gf-9+r-38tf68+98-7fffg")
+    b = Stream("2a^q29=a83*gf-9+r-38tf68+98-7fffg")
     print(b.get_string(),len(b.get_string()))
     index=[lexer_variable(b),lexer_int(b),lexer_operator(b)]
     index_token=["Variable","Int","Operator"]

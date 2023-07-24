@@ -114,17 +114,8 @@ def is_digit(string:str)->bool:
             return False
     else:
         return False
+       
     
-def is_operator(string:str)->bool:
-    """ Esta funcion verifica el primer caracter de un string sea un dígito"""
-    if len(string)>0:
-        ope = string[0]
-        if ope == "*" or ope == "+" or ope == "-" or ope == "=" or ope == "<" or ope == "^" or ope == "/":
-            return True
-        else: 
-            return False
-    else:
-        return False
 
 ###############################################################################
 #Funciones de Lexer_some
@@ -186,7 +177,10 @@ def lexer_int(stream:Stream)->Optional[Int]:
                         num = stream.get_char()
                         if num is None:
                             break
+                    else:
+                        stream.colcar_posicion(orig_post)
                 else:
+                    stream.colcar_posicion(orig_post)
                     return None
             else: 
                 stream.colcar_posicion(orig_post)
@@ -208,41 +202,28 @@ def lexer_int(stream:Stream)->Optional[Int]:
 #Funcion que verifica que el caracter leido sea de la clase Operator
 # y regresa el segemnto del string que sea del tipo Operator
 def lexer_operator(stream:Stream)->Optional[Operator]:
-
+    index_oper = ["+","*","-","/","<",">","&","|","="]
     acc:list[str]=[]
     orig_post=stream.get_posicion()
     oper = stream.get_char()
-    #print(oper)
+    print(stream)
     if oper is None:
         return None
     else: 
-        if oper == "=":
+        if oper in index_oper:
             acc.append(oper)
             stream.consume()
-            oper = stream.get_char()
-     #       print(oper)
-            if oper is not None:
-                if is_operator(oper) :
-                    while is_operator(oper):
-                        
-                        acc.append(oper)
-                        
-                        stream.consume()
-                        oper = stream.get_char()
-                        if oper is None:
-                            break
-                else:
-                    return None
-            else: 
-                stream.colcar_posicion(orig_post)
-                return None
-        elif is_operator(oper):
-            while is_operator(oper):
-                acc.append(oper)
-                stream.consume()
+            print(stream.get_posicion())
+            if oper == "<" or oper == ">" or oper == "=":
+                
                 oper = stream.get_char()
-                if oper is None:
-                    break
+                if oper == "=":
+                    stream.consume()
+                    acc.append(oper)
+                else:
+                    return Operator(str("".join(acc)))
+            else:
+                return Operator(str("".join(acc)))
         else:
             stream.colcar_posicion(orig_post)
             return None
@@ -250,8 +231,37 @@ def lexer_operator(stream:Stream)->Optional[Operator]:
 
 #-------------------------------------------------------------------
 
+def lexer_leftp(stream:Stream)->Optional[LeftP]:
+    orig_post=stream.get_posicion()
+    char = stream.get_char()
+    if char is None:
+        return None
+    else:
+        if char == "(":
+            LeftP()
+            stream.consume()
+        else:
+            stream.colcar_posicion(orig_post)
+            return None
+    
+
+#-------------------------------------------------------------------
+
+def lexer_rightp(stream:Stream)->Optional[LeftP]:
+    orig_post=stream.get_posicion()
+    char = stream.get_char()
+    if char is None:
+        return None
+    else:
+        if char == ")":
+                RightP()
+                stream.consume() 
+        else:
+            stream.colcar_posicion(orig_post)
+            return None
+
+
             
-#print(lexer_int(Stream("-121+3-4"))) 
 ###############################################################################
 #Funcion Return_Token
 ###############################################################################
@@ -259,12 +269,16 @@ def return_token(stream:Stream)->Optional[list]:
 #b = Stream("2a^++q29=+a83*gf-9+r-38tf68+98-7fffg")
 #print(b.get_string(),len(b.get_string()))"""
     index=[lexer_variable(stream),lexer_int(stream),lexer_operator(stream)]
+    
     index_token=["Variable","Int","Operator"]
     tokens_list = []
     stop = 0
+    posicion=0
+    rango = len(stream.get_string())
     ind = 0
     finish = 0
-    catch_token :[str]=[]
+    catch_token :list[str] =[]
+    print(rango)
     while stop == 0:
         #print(index,b.get_posicion())
         #print("")
@@ -276,10 +290,18 @@ def return_token(stream:Stream)->Optional[list]:
         #time.sleep(.1)
         if catch_token is None:
             finish = finish + 1
-            #print(finish,"finish")
-            if finish == len(index):
+            posicion = stream.get_posicion()
+            #print(index,posicion)
+            if finish == len(index) and rango <= posicion:
+                #print(index,11111)
                 ind = 0
                 stop =1
+            elif rango > posicion:
+                ind = 0
+                #print("Token no encontrado")
+                stream.consume()
+                index=[lexer_variable(stream),lexer_int(stream),lexer_operator(stream)]
+                #print(stream.get_posicion())
                 
             #time.sleep(1)
         else:
@@ -290,6 +312,7 @@ def return_token(stream:Stream)->Optional[list]:
             ind = -1
             finish = 0
             index=[lexer_variable(stream),lexer_int(stream),lexer_operator(stream)]
+            print(index,"4")
             #print(ind,"00000000")
             #print("")
             #print(tokens)
@@ -301,9 +324,10 @@ def return_token(stream:Stream)->Optional[list]:
     return tokens_list      
 
 
+
 def main():
-    b = Stream("a^++q29=+a83*gf-9+r-38tf68+98-7fffg")
-    print(b.get_string())
+    b = Stream("+")
+
     print(return_token(b))
 
 if __name__ =="__main__":

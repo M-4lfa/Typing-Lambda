@@ -6,7 +6,7 @@ Created on Mon Jul 10 12:10:34 2023
 Definición de clases
 """
 from dataclasses import dataclass
-from typing import Union, Optional
+from typing import Union, Optional,Callable
 
 Token = Union["Variable", "Int", "IntType", "Operator", "Bool", "BoolType", "LeftP", "RightP", "TokenError", "ArrowR", "LineLambda", "Twop", "UnitType", "UnitExp"]
 
@@ -94,10 +94,14 @@ class Stream:
     #Funcion que regresa la posicion del caracter a leer
     def get_posicion(self):
         return self.pos
-    #Funcion que reescribe la poscion del caracter a leer
     
+    #Funcion que reescribe la poscion del caracter a leer
     def colcar_posicion(self, new_pos):
         self.pos = new_pos
+        
+    #Funcion que reescribe la poscion del caracter a leer
+    def salto_posicion(self, jump_pos):
+        self.pos = self.pos + jump_pos
 
 ###############################################################################
 #Funciones de is_some
@@ -259,7 +263,28 @@ def lexer_rightp(stream:Stream)->Optional[LeftP]:
         else:
             stream.colcar_posicion(orig_post)
             return None
+#-------------------------------------------------------------------
+    
+def lexer_string(string:str)->Callable[[Stream],Optional[str]]:
+    print(string,1111111111111111111111111111111111)
+    def lexer_interno(stream:Stream)->Optional[str]:
+        print(string,1111111111111111111111111111111111)
+        orig_post = stream.get_posicion()
+        print(string,orig_post)
+        cadena_r = stream.get_string()
+        new_cadena=cadena_r[orig_post:]
+        if new_cadena is None:
+            return None
+        else:
+            if new_cadena.startswith(string):
+                salto = int(len(string))
+                stream.salto_posicion(salto)
+                return string
+            else:
+                stream.colcar_posicion(orig_post)
+                return None
 
+    return lexer_interno
 
             
 ###############################################################################

@@ -5,7 +5,7 @@ Created on Sat Jul 15 15:07:42 2023
 @author: Moisés
 """
 from Typinglexer.lexer import Stream, Operator, Int, Variable
-from Typinglexer.lexer import lexer_operator, lexer_variable, lexer_int, lexer_leftp, lexer_rightp
+from Typinglexer.lexer import lexer_operator, lexer_variable, lexer_int, lexer_leftp, lexer_rightp, lexer_string
     
 
 ###############################################################################
@@ -29,6 +29,10 @@ def prueba_regresa_posicion(lexer, cadena_prueba:str,expect):
     posicion = stream_prueba.get_posicion()
     assert posicion == expect
     
+def prueba_regresa_posicion_lexer_string(cadena_enviada:str):
+    b = lexer_string(cadena_enviada)
+    regreso = b(Stream(cadena_enviada))
+    assert regreso == cadena_enviada
      
 ###############################################################################
 #Tests de Lexer_variable    
@@ -220,8 +224,21 @@ def test_get_posisicon_righP_0_nulo():
 def test_get_posisicon_righP_1():
     prueba_regresa_posicion(lexer_rightp, ")(", 1)
     
-def test_get_posisicon_leftP_0_no_nulo():
+def test_get_posisicon_rightP_0_no_nulo():
     prueba_regresa_posicion(lexer_rightp, "ñaowifh", 0)
+    
+###############################################################################
+#Test de lexer_string
+##############################################################################
+def test_get_posisicon_lexer_string_1():
+    prueba_regresa_posicion_lexer_string("a")
+
+def test_get_posisicon_lexer_string_0_nulo():
+    prueba_regresa_posicion_lexer_string("")
+    
+def test_get_posisicon_lexer_string_some_nulo():
+    prueba_regresa_posicion_lexer_string("ñapiwfgañoksfnaoefnrloKFG")
+    
 
 
 ###############################################################################

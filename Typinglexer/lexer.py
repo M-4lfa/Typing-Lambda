@@ -35,6 +35,9 @@ class Variable:
 @dataclass    
 class BoolType:
     pass
+
+class BoolExpresion:
+    pass
  
 @dataclass
 class TokenError:
@@ -205,80 +208,72 @@ def lexer_int(stream:Stream)->Optional[Int]:
 #-------------------------------------------------------------------
 #Funcion que verifica que el caracter leido sea de la clase Operator
 # y regresa el segemnto del string que sea del tipo Operator
+
 def lexer_operator(stream:Stream)->Optional[Operator]:
-    index_oper = ["+","*","-","/","<",">","&","|","="]
-    acc:list[str]=[]
-    orig_post=stream.get_posicion()
-    oper = stream.get_char()
-    print(stream)
-    if oper is None:
-        return None
-    else: 
-        if oper in index_oper:
-            acc.append(oper)
-            stream.consume()
-            print(stream.get_posicion())
-            if oper == "<" or oper == ">" or oper == "=":
-                
-                oper = stream.get_char()
-                if oper == "=":
-                    stream.consume()
-                    acc.append(oper)
-                else:
-                    return Operator(str("".join(acc)))
-            else:
-                return Operator(str("".join(acc)))
-        else:
-            stream.colcar_posicion(orig_post)
-            return None
-    return Operator(str("".join(acc)))  
+    index_oper = ["+","*","-","/","<=","<",">=",">","&","|","=="]
+    for i in index_oper:
+        print(i,"?????????????????????????")
+        new_function = lexer_string(i)
+        regreso = new_function(stream)
+        if regreso is not None:
+            return Operator(regreso)
+    return None
+        
+    
+    
+    
+    
 
 #-------------------------------------------------------------------
 
 def lexer_leftp(stream:Stream)->Optional[LeftP]:
-    orig_post=stream.get_posicion()
-    char = stream.get_char()
-    if char is None:
+    new_function = lexer_string("(")
+    regreso = new_function(stream)
+    if regreso is None:
         return None
     else:
-        if char == "(":
-            LeftP()
-            stream.consume()
-        else:
-            stream.colcar_posicion(orig_post)
-            return None
-    
+        return LeftP()
+
+"""f stream = 
+ char '(' stream >>=  (\ x -> pure LeftP())"""
 
 #-------------------------------------------------------------------
 
 def lexer_rightp(stream:Stream)->Optional[LeftP]:
-    orig_post=stream.get_posicion()
-    char = stream.get_char()
-    if char is None:
+    new_function = lexer_string(")")
+    regreso = new_function(stream)
+    if regreso is None:
         return None
     else:
-        if char == ")":
-                RightP()
-                stream.consume() 
-        else:
-            stream.colcar_posicion(orig_post)
-            return None
+        return RightP()
+    
+#-------------------------------------------------------------------
+
+def lexer_booltype(stream:Stream)->Optional[LeftP]:
+    new_function = lexer_string("bool")
+    regreso = new_function(stream)
+    if regreso is None:
+        return None
+    else:
+        return BoolType()
 #-------------------------------------------------------------------
     
 def lexer_string(string:str)->Callable[[Stream],Optional[str]]:
-    print(string,1111111111111111111111111111111111)
     def lexer_interno(stream:Stream)->Optional[str]:
-        print(string,1111111111111111111111111111111111)
         orig_post = stream.get_posicion()
         print(string,orig_post)
         cadena_r = stream.get_string()
+        print(cadena_r,"cadenaa",stream)
         new_cadena=cadena_r[orig_post:]
+        print(new_cadena,22222222222222222222)
         if new_cadena is None:
             return None
         else:
             if new_cadena.startswith(string):
                 salto = int(len(string))
+                print(salto,"salto")
                 stream.salto_posicion(salto)
+                print(stream.get_posicion())
                 return string
             else:
                 stream.colcar_posicion(orig_post)

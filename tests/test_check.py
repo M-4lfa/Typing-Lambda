@@ -5,7 +5,7 @@ Created on Sat Jul 15 15:07:42 2023
 @author: Moisés
 """
 from Typinglexer.lexer import Stream, Operator, Int, Variable
-from Typinglexer.lexer import lexer_operator, lexer_variable, lexer_int, lexer_leftp, lexer_rightp, lexer_string
+from Typinglexer.lexer import lexer_operator, lexer_variable, lexer_int, lexer_leftp, lexer_rightp, lexer_string, lexer_booltype
     
 
 ###############################################################################
@@ -29,10 +29,18 @@ def prueba_regresa_posicion(lexer, cadena_prueba:str,expect):
     posicion = stream_prueba.get_posicion()
     assert posicion == expect
     
-def prueba_regresa_posicion_lexer_string(cadena_enviada:str):
+    
+def prueba_regresa_lexer_string(cadena_enviada:str):
     b = lexer_string(cadena_enviada)
     regreso = b(Stream(cadena_enviada))
     assert regreso == cadena_enviada
+    
+def prueba_regresa_posicion_lexer_string(cadena_enviada:str,expect):
+    b = lexer_string(cadena_enviada)
+    newstream = Stream(cadena_enviada)
+    regreso = b(newstream)
+    posicion = newstream.get_posicion()
+    assert posicion == expect
      
 ###############################################################################
 #Tests de Lexer_variable    
@@ -121,11 +129,11 @@ def test_get_some3_operator():
 def test_get_some4_operator():
     prueba_regresa_some(lexer_operator,"==r4r",Operator("=="))
 
-def test_get_some5_operator():
-    prueba_regresa_some(lexer_operator,"=a=r4r",Operator("="))
+def test_get_None_operator_1():
+    prueba_regresa_None(lexer_operator,"=a=r4r")
     
-def test_get_some6_operator():
-    prueba_regresa_some(lexer_operator,"=>",Operator("="))
+def test_get_None_operator_2():
+    prueba_regresa_None(lexer_operator,"=>")
 
 
 ###############################################################################
@@ -192,7 +200,7 @@ def test_get_posisicon_operator_2():
     prueba_regresa_posicion(lexer_operator, "<=", 2)
 
 def test_get_posisicon_operator_1_cortado():
-    prueba_regresa_posicion(lexer_operator, "=1=", 1)
+    prueba_regresa_posicion(lexer_operator, "=1=", 0)
     
 def test_get_posisicon_operator_2_coratdo():
     prueba_regresa_posicion(lexer_operator, "===", 2)
@@ -222,23 +230,41 @@ def test_get_posisicon_righP_0_nulo():
     prueba_regresa_posicion(lexer_rightp, "", 0)
     
 def test_get_posisicon_righP_1():
-    prueba_regresa_posicion(lexer_rightp, ")(", 1)
+    prueba_regresa_posicion(lexer_rightp, ")", 1)
     
 def test_get_posisicon_rightP_0_no_nulo():
     prueba_regresa_posicion(lexer_rightp, "ñaowifh", 0)
     
 ###############################################################################
 #Test de lexer_string
-##############################################################################
-def test_get_posisicon_lexer_string_1():
-    prueba_regresa_posicion_lexer_string("a")
+###############################################################################
+def test_get_lexer_string_1():
+    prueba_regresa_lexer_string("a")
 
-def test_get_posisicon_lexer_string_0_nulo():
-    prueba_regresa_posicion_lexer_string("")
+def test_get_lexer_string_0_nulo():
+    prueba_regresa_lexer_string("")
     
-def test_get_posisicon_lexer_string_some_nulo():
-    prueba_regresa_posicion_lexer_string("ñapiwfgañoksfnaoefnrloKFG")
+def test_get_lexer_string_some_nulo():
+    prueba_regresa_lexer_string("ñapiwfgañoksfnaoefnrloKFG")
+
+def test_get_posisicon_lexer_string_1():
+    prueba_regresa_posicion_lexer_string("a",1)
     
+def test_get_posisicon_lexer_string_10():
+    prueba_regresa_posicion_lexer_string("awedrftgyh",10)
+    
+def test_get_posisicon_lexer_string_0():
+    prueba_regresa_posicion_lexer_string("",0)
+
+###############################################################################
+#Test de lexer_booltype
+###############################################################################
+
+def test_get_posisicon_booltype_4():
+    prueba_regresa_posicion(lexer_booltype, "bool", 4)
+
+def test_get_posisicon_booltype_():
+    prueba_regresa_posicion(lexer_booltype, "Bbool", 0)
 
 
 ###############################################################################

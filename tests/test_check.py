@@ -4,14 +4,27 @@ Created on Sat Jul 15 15:07:42 2023
 
 @author: Moisés
 """
-from Typinglexer.lexer import Stream, Operator, Int, Variable
-from Typinglexer.lexer import lexer_operator, lexer_variable, lexer_int, lexer_leftp, lexer_rightp, lexer_string, lexer_booltype
-    
+from Typinglexer.lexer import (
+        Stream, 
+        Operator,
+        Int,
+        Variable
+    )
+from Typinglexer.lexer import (
+        lexer_operator, 
+        lexer_variable, 
+        lexer_int, 
+        lexer_leftp, 
+        lexer_rightp, 
+        lexer_string, 
+        lexer_booltype
+        )
+
+import pytest
 
 ###############################################################################
-#Funciones de prueba, se envia quetipo de fucnion, la cadena y si regresa un valor o None
+#Funciones de prueba, se envia que tipo de fucnion, la cadena y si regresa un valor o None
 ###############################################################################
-
 
 def prueba_regresa_None(lexer, cadena_prueba:str):
     stream_prueba = Stream(cadena_prueba)
@@ -38,102 +51,111 @@ def prueba_regresa_lexer_string(cadena_enviada:str):
 def prueba_regresa_posicion_lexer_string(cadena_enviada:str,expect):
     b = lexer_string(cadena_enviada)
     newstream = Stream(cadena_enviada)
-    regreso = b(newstream)
+    b(newstream)
     posicion = newstream.get_posicion()
     assert posicion == expect
      
 ###############################################################################
-#Tests de Lexer_variable    
+"""Tests de None lexer variable"""
 ###############################################################################
 
-def test_get_None_Variable():
-    prueba_regresa_None(lexer_variable, "-2dfsg") 
+@pytest.mark.parametrize('cadena_prueba',
+                         ["", #String vacio
+                          '-2dfsg', #String con carecter no definido
+                          "1234314", #string de otra clase
+                          "*+*", #String de otra clase
+                          "_", #solomante un guion
+                          ],
+                         )
+def test_get_none_variable(cadena_prueba:str):
+    prueba_regresa_None(lexer_variable,cadena_prueba) 
 
-def test_get_None_Void_Variable():
-    prueba_regresa_None(lexer_variable, "")  
+###############################################################################
+"""Tests de some lexer Variable""" 
+###############################################################################  
+@pytest.mark.parametrize('string, result',
+                         [("_a", Variable("_a")),#String comienza con _
+                          ('q',Variable("q")), #String de un solo caracter
+                          ("qwerwerqwerwerqwerwerqwerwerqwerwer",
+                           Variable("qwerwerqwerwerqwerwerqwerwerqwerwer")), #String Largo
+                          ("Hola1",Variable("Hola")), #String cortado
+                          ("Hola_1",Variable("Hola"))#String cortado con _
+                          ],
+                         )
 
+def test_get_some_variable(string: str, result: Variable):
+    prueba_regresa_some(lexer_variable,string,result)
 
-def test_get_some_variable():
-    prueba_regresa_some(lexer_variable,"hola-a",Variable("hola"))
+###############################################################################
+"""Tests de None lexer Int"""
+###############################################################################
 
-
-def test_get_one_variable():
-    prueba_regresa_some(lexer_variable,"q",Variable("q"))
-
-def test_get_some1_variable():
-    prueba_regresa_some(lexer_variable,"qwerwerqwerwerqwerwerqwerwerqwerwer",
-                        Variable("qwerwerqwerwerqwerwerqwerwerqwerwer"))
-
-def test_get_None_variable():
-    prueba_regresa_None(lexer_variable,"98274*59872")
+@pytest.mark.parametrize('cadena_prueba',
+                         ["", #String vacio
+                          '#123', #String con carecter no definido
+                          "KJB", #String de otra clase
+                          "*++*", #String de otra clase
+                          "-", #solomante un menos
+                          ],
+                         )
+def test_get_none_int(cadena_prueba:str):
+    prueba_regresa_None(lexer_int,cadena_prueba)
 
 
 ###############################################################################
-#Test de Lexer_int   
+"""Tests de some lexer Int""" 
+###############################################################################  
+@pytest.mark.parametrize('string, result',
+                         [("-1", Int(-1)),#Numero negativo
+                          ('5',Int(5)), #Numero normal
+                          ("2142345", Int(2142345)), #Numero largo
+                          ("1324asdf",Int(1324)), #Numero cortado
+                          ("1235-",Int(1235))#String cortado con 
+                          ],
+                         )
+
+def test_get_some_int(string: str, result: Int):
+    prueba_regresa_some(lexer_int,string,result)
+
+
 ###############################################################################
-def prueba_int(p):
-    b = Stream(p)
-    return lexer_int(b)
+"""Tests de None lexer Operator"""
+###############################################################################
 
-def test_get_Int_negativo():    
-    assert prueba_int("-4") == Int(-4)
-#########################################################
+@pytest.mark.parametrize('cadena_prueba',
+                         ["", #String vacio
+                          '#123', #String con carecter no definido
+                          "KJB", #String de otra clase
+                          "124", #String de otra clase
+                          "=", #solomante =
+                          "=>" ,#Diferencia entre mayor igual
+                          "=<", #Diferencia entre menor igual
+                          "=a=>" #Igual cortado
+                          ],
+                         )
+def test_get_none_operator(cadena_prueba:str):
+    prueba_regresa_None(lexer_operator,cadena_prueba)
 
-def test_get_None_Int():
-    prueba_regresa_None(lexer_int, "asd") 
 
-def test_get_None_Void_Int():
-    prueba_regresa_None(lexer_int, "") 
+###############################################################################
+"""Tests de some lexer Operator""" 
+###############################################################################  
+@pytest.mark.parametrize('string, result',
+                         [("+", Operator("+")),#Un solo operador
+                          ('*+*+*+*+*+',Operator("*")), #Cadena de operadores
+                          ("<=*+*+*+*+", Operator("<=")), #Detecta a menor o igual
+                          (">=*+*+*+*+",Operator(">=")), #Detecta a mayor o igual
+                          ("<*+*+*+*+",Operator("<")),#Detecta a memor que
+                          (">*+*+*+*+",Operator(">")),#Detecta a memor que
+                          ("==*+*+*+*+",Operator("=="))#Detecta al igual
+                          ],
+                         )
 
-def test_get_one_int():
+def test_get_some_operator(string: str, result: Operator):
+    prueba_regresa_some(lexer_operator,string,result)
     
-    prueba_regresa_some(lexer_int,"4",Int(4))
-
-def test_get_some1_int():
-    prueba_regresa_some(lexer_int,"1234567890",Int(1234567890))
-
-def test_get_None_int():
-    prueba_regresa_None(lexer_int,"MOises")
-
-def test_get_some_int():
-    prueba_regresa_some(lexer_int,"43-2",Int(43))
-
-###############################################################################
-#Test de Lexer_operator
-###############################################################################
-
-def test_get_None_Operator():
-    prueba_regresa_None(lexer_operator, "dfsg")    
-
-def test_get_None_Void_operator():
-    prueba_regresa_None(lexer_operator, "")    
-
-def test_get_some_operator():
-    prueba_regresa_some(lexer_operator,"+a",Operator("+"))
-
-def test_get_one_operator():
-    prueba_regresa_some(lexer_operator,"&",Operator("&"))
-
-def test_get_some1_operator():
-    prueba_regresa_some(lexer_operator,"*+*+*+*+*+",Operator("*"))
-
-def test_get_some2_operator():
-    prueba_regresa_some(lexer_operator,"<=*+*+*+*+",Operator("<="))
-
-def test_get_None_operator1():
-    prueba_regresa_None(lexer_operator,"24fq3gouh")
-
-def test_get_some3_operator():
-    prueba_regresa_some(lexer_operator,"<*+*+*+*+",Operator("<"))
     
-def test_get_some4_operator():
-    prueba_regresa_some(lexer_operator,"==r4r",Operator("=="))
 
-def test_get_None_operator_1():
-    prueba_regresa_None(lexer_operator,"=a=r4r")
-    
-def test_get_None_operator_2():
-    prueba_regresa_None(lexer_operator,"=>")
 
 
 ###############################################################################

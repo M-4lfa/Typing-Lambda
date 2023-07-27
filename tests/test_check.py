@@ -155,138 +155,143 @@ def test_get_some_operator(string: str, result: Operator):
     prueba_regresa_some(lexer_operator,string,result)
     
     
+###############################################################################
+#Test de lexer_string
+###############################################################################
+
+@pytest.mark.parametrize('stream',
+                         ["", #String vacio
+                          '#123',#String con carecter no definido
+                          "a",#String con un solo carecter
+                          ("sfdgbasfg")
+                          ],
+                         )
+def test_get_some_string(stream:str):
+    prueba_regresa_lexer_string(stream)
+
+@pytest.mark.parametrize('stream,result',
+                         [("",0), #String vacio
+                          ('#123',4),#avanza aunque tenga un caracter no definido
+                          ("a",1),#String con un solo carecter 
+                          ("sfdgbasfg",9)
+                          ],
+                         )
+def test_get_posicion_string(stream:str,result:int):
+    prueba_regresa_posicion_lexer_string(stream,result)
 
 
+"!!!!!!!!!!!!!!!!!!!!!!!!!!Test de posicion!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
 ###############################################################################
 #Test de posicion Variable
 ###############################################################################
 
-def test_get_posisicon_variable_0_nulo():
-    prueba_regresa_posicion(lexer_variable, "", 0)
-    
-def test_get_posisicon_variable_1_():
-    prueba_regresa_posicion(lexer_variable, "a", 1)
-    
-def test_get_posisicon_variable_5():
-    prueba_regresa_posicion(lexer_variable, "qwert", 5)
+@pytest.mark.parametrize('stream, result',
+                         [("", 0),#String nulo
+                          ('a',1), #Un solo caracter
+                          ("qwert", 5), #cadena de caracteres
+                          ("qwert3", 5), #cadena de caracteres cortado
+                          ("1qwert", 0),#cadena de caracteres que no recorre
+                          ("_a", 2),#detecta la cadana _a
+                          ("_", 0)#No avanza cuando se envia _
+                          ],
+                         )
+def test_get_posisicon_variable(stream:str, result:int):
+    prueba_regresa_posicion(lexer_variable, stream, result)
 
-def test_get_posisicon_variable_5_cortado():
-    prueba_regresa_posicion(lexer_variable, "qwert3", 5)
-    
-def test_get_posisicon_variable_0_no_nulo():
-    prueba_regresa_posicion(lexer_variable, "1qwert", 0)
     
 ###############################################################################
 #Test de posicion Int
 ###############################################################################
 
-def test_get_posisicon_int_0_nulo():
-    prueba_regresa_posicion(lexer_int, "", 0)
-    
-def test_get_posisicon_int_1_():
-    prueba_regresa_posicion(lexer_int, "1", 1)
-    
-def test_get_posisicon_int_5():
-    prueba_regresa_posicion(lexer_int, "12345", 5)
+@pytest.mark.parametrize('stream, result',
+                         [("", 0),#String nulo
+                          ('1',1), #Un solo caracter
+                          ("12345", 5), #cadena de caracteres
+                          ("12345Qp", 5), #cadena de caracteres cortado
+                          ("A12345", 0),#cadena de caracteres que no recorre
+                          ("-334", 4),#detecta numeros negativos
+                          ("-", 0),#No avanza cuando se envia -
+                          ("-qweqr", 0),#No avanza cuando se envia - y otros caracteres
+                          ("123-e", 3)#Se corta en el menos -
+                          ],
+                         )
+def test_get_posisicon_int(stream:str, result:int):
+    prueba_regresa_posicion(lexer_int, stream, result)
 
-def test_get_posisicon_int_5_cortado():
-    prueba_regresa_posicion(lexer_int, "12345poi", 5)
-    
-def test_get_posisicon_int_0_no_nulo():
-    prueba_regresa_posicion(lexer_int, "q12345", 0)
-    
-def test_get_posisicon_int_negativo_2():
-    prueba_regresa_posicion(lexer_int, "-1", 2)
 
-def test_get_posisicon_int_0_menos_nulo():
-    prueba_regresa_posicion(lexer_int, "-q12345", 0)
-
-def test_get_posisicon_int_menos():
-    prueba_regresa_posicion(lexer_int, "-", 0)
-
-def test_get_posisicon_int_menos_enmedio():
-    prueba_regresa_posicion(lexer_int, "123-e", 3)
     
 ###############################################################################
 #Test de posicion Operator
 ###############################################################################
 
-def test_get_posisicon_operator_0_nulo():
-    prueba_regresa_posicion(lexer_operator, "", 0)
-    
-def test_get_posisicon_operator_1():
-    prueba_regresa_posicion(lexer_operator, "+", 1)
-    
-def test_get_posisicon_operator_2():
-    prueba_regresa_posicion(lexer_operator, "<=", 2)
+@pytest.mark.parametrize('stream, result',
+                         [("", 0),#String nulo
+                          ('+',1), #Un solo caracter
+                          (">=", 2), #cadena de caracteres
+                          ("<=", 2), #cadena de caracteres cortado
+                          ("==", 2),#cadena de caracteres que no recorre
+                          ("=1=", 0),#detecta la cadana _a
+                          ("-", 1),#No avanza cuando se envia _
+                          ("-4", 0),#No avanza cuando se envia un numero negativo
+                          ("===", 2),#Solo detecta un igual
+                          ("a*++",0 )#Cadena que nos avanza
+                          ],
+                         )
+def test_get_posisicon_operator(stream:str, result:int):
+    prueba_regresa_posicion(lexer_operator, stream, result)
 
-def test_get_posisicon_operator_1_cortado():
-    prueba_regresa_posicion(lexer_operator, "=1=", 0)
-    
-def test_get_posisicon_operator_2_coratdo():
-    prueba_regresa_posicion(lexer_operator, "===", 2)
-    
-def test_get_posisicon_operator_menos_con_digito():
-    prueba_regresa_posicion(lexer_operator, "-1", 1)
-
-def test_get_posisicon_operator_0_no_nulo():
-    prueba_regresa_posicion(lexer_operator, "a*++", 0)
 
 ###############################################################################
-#Test de posicion Operator
+#Test de posicion Parenteisis Left y Right
 ###############################################################################
 
-def test_get_posisicon_leftP_0_nulo():
-    prueba_regresa_posicion(lexer_leftp, "", 0)
-    
-def test_get_posisicon_leftP_1():
-    prueba_regresa_posicion(lexer_leftp, "()", 1)
+@pytest.mark.parametrize('stream, result',
+                         [("", 0),#String nulo
+                          ('(',1), #Un solo caracter
+                          ("(((", 1), #Solo detecta 3 parentesis
+                          ("()", 1), #Solo detecta un parentesis
+                          (")(", 0), #Solo detecta un parentesis
+                          (")", 0),#No avanza
+                          ("1", 0),#No avanza
+                          ("-", 0),#No avanza cuando se envia _
+                          ("a", 0),#No avanza cuando se envia un numero negativo
+                          ],
+                         )
+def test_get_posisicon_leftp(stream:str, result:int):
+    prueba_regresa_posicion(lexer_leftp, stream, result)
     
 
-def test_get_posisicon_leftP_0_no_nulo():
-    prueba_regresa_posicion(lexer_leftp, "ñaowifh", 0)
+@pytest.mark.parametrize('stream, result',
+                         [("", 0),#String nulo
+                          (')',1), #Un solo caracter
+                          ("))))", 1), #Solo detecta 3 parentesis
+                          (")(", 1), #Solo detecta un parentesis
+                          ("()", 0),#No avanza
+                          ("1", 0),#No avanza
+                          ("-", 0),#No avanza cuando se envia -, aunque creo que esto se podria evitar si hacemos priero un lexer de Int
+                          ("a", 0),#No avanza cuando se envia un numero negativo
+                          ],
+                         )
+def test_get_posisicon_rightp(stream:str, result:int):
+    prueba_regresa_posicion(lexer_rightp, stream, result)
     
     
-def test_get_posisicon_righP_0_nulo():
-    prueba_regresa_posicion(lexer_rightp, "", 0)
-    
-def test_get_posisicon_righP_1():
-    prueba_regresa_posicion(lexer_rightp, ")", 1)
-    
-def test_get_posisicon_rightP_0_no_nulo():
-    prueba_regresa_posicion(lexer_rightp, "ñaowifh", 0)
-    
-###############################################################################
-#Test de lexer_string
-###############################################################################
-def test_get_lexer_string_1():
-    prueba_regresa_lexer_string("a")
-
-def test_get_lexer_string_0_nulo():
-    prueba_regresa_lexer_string("")
-    
-def test_get_lexer_string_some_nulo():
-    prueba_regresa_lexer_string("ñapiwfgañoksfnaoefnrloKFG")
-
-def test_get_posisicon_lexer_string_1():
-    prueba_regresa_posicion_lexer_string("a",1)
-    
-def test_get_posisicon_lexer_string_10():
-    prueba_regresa_posicion_lexer_string("awedrftgyh",10)
-    
-def test_get_posisicon_lexer_string_0():
-    prueba_regresa_posicion_lexer_string("",0)
 
 ###############################################################################
 #Test de lexer_booltype
 ###############################################################################
-
-def test_get_posisicon_booltype_4():
-    prueba_regresa_posicion(lexer_booltype, "bool", 4)
-
-def test_get_posisicon_booltype_():
-    prueba_regresa_posicion(lexer_booltype, "Bbool", 0)
+@pytest.mark.parametrize('stream, result',
+                         [("", 0),#String nulo
+                          ('bool',4), 
+                          ("Boole", 0), 
+                          ("Bbool", 0), 
+                          ("bo-ol", 0),
+                          ("booL",0)
+                          ],
+                         )
+def test_get_posisicon_booltype(stream:str, result:int):
+    prueba_regresa_posicion(lexer_booltype, stream, result)
 
 
 ###############################################################################

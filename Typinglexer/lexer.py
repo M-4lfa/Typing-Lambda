@@ -210,9 +210,28 @@ def lexer_int(stream:Stream)->Optional[Int]:
 # y regresa el segemnto del string que sea del tipo Operator
 
 def lexer_operator(stream:Stream)->Optional[Operator]:
-    index_oper = ["+","*","-","/","<=","<",">=",">","&","|","=="]
+    index_oper = ["+","*","/","<=","<",">=",">","&","|","==","-"]
     for i in index_oper:
-        print(i,"?????????????????????????")
+        if i == "-":
+            orig_post = stream.get_posicion()
+            print(orig_post,'qqqqqqqqqq',i,'qqqqqqqqqqqqq',stream.get_posicion(),stream)
+            stream.consume()
+            num = stream.get_char()
+            print(stream.get_posicion(),'wwwwwwwwwwwwwwwwww',num,stream,"pppppppppp",orig_post)
+            if num is not None:
+                if is_digit(num):
+                    stream.colcar_posicion(orig_post)
+                    print(stream.get_posicion(),'sssssssssssssssss',num,stream,orig_post,"pppppppppp",orig_post)
+                    return None
+                else: 
+                    print(stream.get_posicion(),'ddddddddddddddd',num,stream,"pppppppppp",orig_post)
+                    stream.colcar_posicion(orig_post)
+                    print(stream.get_posicion(),'ddddddddddddddd',num,stream,"pppppppppp",orig_post)
+            else:
+                print(stream.get_posicion(),'222222222222222222',num,stream,"pppppppppp",orig_post)
+                stream.colcar_posicion(orig_post)
+                print(stream.get_posicion(),'222222222222222222',num,stream,"pppppppppp",orig_post)
+                
         new_function = lexer_string(i)
         regreso = new_function(stream)
         if regreso is not None:

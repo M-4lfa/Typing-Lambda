@@ -8,7 +8,20 @@ from Typinglexer.lexer import (
         Stream, 
         Operator,
         Int,
-        Variable
+        Variable,
+        ArrowR,
+        LeftP,
+        RightP,
+        Token,
+        TokenError,
+        BoolType,
+        BoolExpresion,
+        LineLambda,
+        If,
+        Then,
+        Equals,
+        UnitExpresion,
+        UnitType
     )
 from Typinglexer.lexer import (
         lexer_operator, 
@@ -17,12 +30,26 @@ from Typinglexer.lexer import (
         lexer_leftp, 
         lexer_rightp, 
         lexer_string, 
-        lexer_booltype
+        lexer_booltype,
+        lexer_equals,
+        lexer_boolexpresion,
+        lexer_if,
+        lexer_lineLambda,
+        lexer_then,
+        lexer_unit_expresion,
+        lexer_unit,
+        lexer_tokens,
+        lexer_space
         )
 
 import pytest
 
+from typing import TypeVar
+ 
+T = TypeVar("T")
+
 ###############################################################################
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Pruebas Some y None!!!!!!!!!!!!!!!!!!!!!!!!!!"
 #Funciones de prueba, se envia que tipo de fucnion, la cadena y si regresa un valor o None
 ###############################################################################
 
@@ -41,19 +68,27 @@ def prueba_regresa_posicion(lexer, cadena_prueba:str,expect):
     lexer(stream_prueba)
     posicion = stream_prueba.get_posicion()
     assert posicion == expect
+
+###############################################################################
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Prueba de Tokens!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+###############################################################################
     
-    
-def prueba_regresa_lexer_string(cadena_enviada:str):
-    b = lexer_string(cadena_enviada)
+def prueba_regresa_lexer_string(cadena_enviada:str,expect: T):
+    b = lexer_string(cadena_enviada, expect)
     regreso = b(Stream(cadena_enviada))
-    assert regreso == cadena_enviada
+    assert regreso == expect
     
-def prueba_regresa_posicion_lexer_string(cadena_enviada:str,expect):
-    b = lexer_string(cadena_enviada)
+def prueba_regresa_posicion_lexer_string(cadena_enviada:str,expect: T, posi: int):
+    b = lexer_string(cadena_enviada,expect)
     newstream = Stream(cadena_enviada)
     b(newstream)
     posicion = newstream.get_posicion()
-    assert posicion == expect
+    assert posicion == posi
+    
+def prueba_regresa_tokens(cadena_enviada:str, expect: T):
+    lista_tokens = lexer_tokens(cadena_enviada)
+    assert lista_tokens == expect
+    
      
 ###############################################################################
 """Tests de None lexer variable"""
@@ -64,7 +99,7 @@ def prueba_regresa_posicion_lexer_string(cadena_enviada:str,expect):
                           '-2dfsg', #String con carecter no definido
                           "1234314", #string de otra clase
                           "*+*", #String de otra clase
-                          "_", #solomante un guion
+                          "_" #solomante un guion
                           ],
                          )
 def test_get_none_variable(cadena_prueba:str):
@@ -79,7 +114,7 @@ def test_get_none_variable(cadena_prueba:str):
                           ("qwerwerqwerwerqwerwerqwerwerqwerwer",
                            Variable("qwerwerqwerwerqwerwerqwerwerqwerwer")), #String Largo
                           ("Hola1",Variable("Hola")), #String cortado
-                          ("Hola_1",Variable("Hola"))#String cortado con _
+                          ("Hola_1",Variable("Hola")),#String cortado con _
                           ],
                          )
 
@@ -96,6 +131,7 @@ def test_get_some_variable(string: str, result: Variable):
                           "KJB", #String de otra clase
                           "*++*", #String de otra clase
                           "-", #solomante un menos
+                          "--2", #solomante un menos
                           ],
                          )
 def test_get_none_int(cadena_prueba:str):
@@ -159,25 +195,25 @@ def test_get_some_operator(string: str, result: Operator):
 #Test de lexer_string
 ###############################################################################
 
-@pytest.mark.parametrize('stream',
-                         ["", #String vacio
-                          '#123',#String con carecter no definido
-                          "a",#String con un solo carecter
-                          ("sfdgbasfg")
-                          ],
-                         )
-def test_get_some_string(stream:str):
-    prueba_regresa_lexer_string(stream)
-
 @pytest.mark.parametrize('stream,result',
-                         [("",0), #String vacio
-                          ('#123',4),#avanza aunque tenga un caracter no definido
-                          ("a",1),#String con un solo carecter 
-                          ("sfdgbasfg",9)
+                         [("",None), #String vacio
+                          ('#123',None),#String con carecter no definido
+                          ("a",Variable('a')),#String con un solo carecter
+                          ("sfdgbasfg",Variable('sfdgbasfg'))
                           ],
                          )
-def test_get_posicion_string(stream:str,result:int):
-    prueba_regresa_posicion_lexer_string(stream,result)
+def test_get_some_string(stream:str, result: Variable):
+    prueba_regresa_lexer_string(stream,result)
+
+@pytest.mark.parametrize('stream,vartype,result',
+                         [("",None,0), #String vacio
+                          ('#123',None,4),#avanza aunque tenga un caracter no definido
+                          ("a",Variable('a'),1),#String con un solo carecter 
+                          ("sfdgbasfg",Variable('sfdgbasfg'),9)
+                          ],
+                         )
+def test_get_posicion_string(stream:str, vartype: Variable, result:int):
+    prueba_regresa_posicion_lexer_string(stream,vartype,result)
 
 
 "!!!!!!!!!!!!!!!!!!!!!!!!!!Test de posicion!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
@@ -233,7 +269,7 @@ def test_get_posisicon_int(stream:str, result:int):
                           ("==", 2),#cadena de caracteres que no recorre
                           ("=1=", 0),#detecta la cadana _a
                           ("-", 1),#No avanza cuando se envia _
-                          ("-4", 0),#No avanza cuando se envia un numero negativo
+                          ("-4", 1),#No avanza cuando se envia un numero negativo
                           ("===", 2),#Solo detecta un igual
                           ("a*++",0 )#Cadena que nos avanza
                           ],
@@ -290,16 +326,50 @@ def test_get_posisicon_rightp(stream:str, result:int):
                           ("booL",0)
                           ],
                          )
-def test_get_posisicon_booltype(stream:str, result:int):
-    prueba_regresa_posicion(lexer_booltype, stream, result)
-
+def test_get_posicion_boolexpresion(stream:str, result:int):
+    prueba_regresa_posicion(lexer_boolexpresion, stream, result)
 
 ###############################################################################
-#Test de return_token
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TBorrar Espacios!!!!!!!!!!!!!!!!!!!!!!!!!!"
 ###############################################################################
+@pytest.mark.parametrize('string, result',
+                         [(" ", 1),#String nulo
+                          (' a ',1)
+                          ],
+                         )
+def test_get_posicion_spaces(string:str, result:int):
+    prueba_regresa_posicion(lexer_space, string, result)
+
+###############################################################################
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Test de return_token!!!!!!!!!!!!!!!!!!!!!!!!!!"
+###############################################################################
+@pytest.mark.parametrize('stream, result',
+                         [("!", [TokenError('!')]),
+                          ("a",[Variable('a')]),
+                          ("12",[Int(12)]),
+                          ("==",[Operator('==')]),
+                          ("(",[LeftP()]),
+                          ("a1",[Variable('a'),Int(1)]),
+                          ("a*1",[Variable('a'),Operator('*'),Int(1)]),
+                          ("Manzana1",[Variable('Manzana'),Int(1)]),
+                          ("==1",[Operator('=='),Int(1)]),
+                          ("(a1)",[LeftP(),Variable('a'),Int(1),RightP()]),
+                          ("bool",[BoolExpresion()]),
+                          ('->',[LineLambda()]),
+                          ("Teorema:if1+1==2then1+2=3",
+                           [Variable('Teorema'),TokenError(':'),If(),Int(1),Operator('+'),Int(1),Operator('=='),Int(2),
+                            Then(),Int(1),Operator('+'),Int(2),Equals(),Int(3) ]),
+                          ("Teorema :  if 1+1==2 then 1+2=3",
+                           [Variable('Teorema'),TokenError(':'),If(),Int(1),Operator('+'),Int(1),Operator('=='),Int(2),
+                            Then(),Int(1),Operator('+'),Int(2),Equals(),Int(3) ]),
+                          ("Teorema :                             if 1+1==2 then 1+2=3",
+                           [Variable('Teorema'),TokenError(':'),If(),Int(1),Operator('+'),Int(1),Operator('=='),Int(2),
+                            Then(),Int(1),Operator('+'),Int(2),Equals(),Int(3) ])
+                          ],
+                         )
+def test_get_tokens(stream: str,result:list[Token]):
+    prueba_regresa_tokens(stream, result) 
     
-#def test_get_None_token():
-    #prueba_regresa_None(return_token, "!2dfsg") 
 
 
 

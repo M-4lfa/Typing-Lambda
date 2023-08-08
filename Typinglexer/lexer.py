@@ -11,17 +11,18 @@ from typing import Union, Optional, Callable, TypeVar
 Token = Union[
     "Variable",
     "Int",
-    "IntType",
     "Operator",
-    "Bool",
+    "BoolExpresion",
     "BoolType",
     "LeftP",
     "RightP",
     "TokenError",
-    "ArrowR",
     "LineLambda",
     "UnitType",
     "UnitExpresion",
+    "If",
+    "Then",
+    "Equals"
 ]
 
 
@@ -73,12 +74,6 @@ class LeftP:
 @dataclass
 class RightP:
     pass
-
-
-@dataclass
-class ArrowR:
-    pass
-
 
 @dataclass
 class LineLambda:
@@ -147,6 +142,7 @@ class Stream:
 
     # Funcion que reescribe la poscion debido a una cadena
     def salto_posicion(self, jump_pos):
+        print(jump_pos)
         self.pos = self.pos + jump_pos
 
 
@@ -171,9 +167,19 @@ def is_digit(string: str) -> bool:
         return False
 
 
-def lexer_space(stream: Stream) -> Optional[str]:
-    f = lexer_string(" ", Int(1))
-    f(stream)
+def lexer_space(stream: Stream)->Optional[str]:
+    f = lexer_string(" ", "a")
+    return f(stream)
+
+def lexer_spaces(stream:Stream)->None:
+    result = lexer_space(stream)
+    print(result,4444)
+    while result is not None:
+        #print(stream)
+        result = lexer_space(stream)
+        print(result,"333")
+    return None
+    
 
 
 ###############################################################################
@@ -188,7 +194,7 @@ def lexer_string(string: str, varType: T) -> Callable[[Stream], Optional[T]]:
         cadena_r = stream.get_string()  # print(cadena_r,"cadenaa",stream)
         new_cadena = cadena_r[
             orig_post:
-        ]  # print(new_cadena,22222222222222222222)
+        ]  
         if new_cadena is None:
             return None
         else:
@@ -410,12 +416,10 @@ def lexer_unit(stream: Stream) -> Optional[UnitType]:
 ###############################################################################
 # Funcion Return_Token
 ###############################################################################
-def lexer_tokens(input_string: str) -> list[T]:
-    char = []
-    error = 0
+def lexer_tokens(input_string: str)-> list[Token]:
+    char:Optional[Token]
     stream = Stream(input_string)
     lexer_list = [
-        lexer_space,
         lexer_leftp,
         lexer_boolexpresion,
         lexer_booltype,
@@ -428,34 +432,21 @@ def lexer_tokens(input_string: str) -> list[T]:
         lexer_variable,
         lexer_int,
         lexer_operator,
-        lexer_equals,
+        lexer_equals
     ]
-    tokens = []
-    long = stream.get_posicion()
-    while long < len(input_string):
-        long = stream.get_posicion()
-        print(long, len(input_string), len(lexer_list))
+    tokens :list[Token] = []
+    while stream.get_char() is not None:
+        lexer_spaces(stream)
         for i in lexer_list:
             char = i(stream)
             if char is not None:
-                # typechar = type(char)
-                print(char, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", i)
                 tokens.append(char)
-                error = 0
                 break
-            else:
-                print(char, "222222222222222222222222", error)
-                error = error + 1
-
-        if error == len(lexer_list) and long < len(input_string):
-            char = stream.get_char()
-            if char == " ":
-                lexer_space(stream)
-            else:
-                tokens.append(TokenError(char))
-                stream.consume()
-            error = 0
-        print(tokens, "111111111111111111111111111")
+        if char is None:
+            char2 = stream.get_char()
+            if  char2 is not None:
+                tokens.append(TokenError(char2))
+            break
     return tokens
 
 
@@ -464,7 +455,7 @@ def lexer_tokens(input_string: str) -> list[T]:
 
 
 def main():
-    b = "a1"
+    b = "     a1"
     print(lexer_tokens(b))
 
 

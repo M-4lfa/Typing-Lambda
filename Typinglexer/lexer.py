@@ -6,7 +6,7 @@ Created on Mon Jul 10 12:10:34 2023
 Definición de clases
 """
 from dataclasses import dataclass
-from typing import Union, Optional,Callable, TypeVar
+from typing import Union, Optional, Callable, TypeVar
 
 Token = Union[
     "Variable",
@@ -21,69 +21,84 @@ Token = Union[
     "ArrowR",
     "LineLambda",
     "UnitType",
-    "UnitExpresion"]
-
+    "UnitExpresion",
+]
 
 
 @dataclass
 class Int:
     value: int
 
+
 @dataclass
 class IntType:
     pass
 
-@dataclass    
+
+@dataclass
 class Operator:
     name: str
 
-@dataclass    
+
+@dataclass
 class Bool:
     value: bool
-    
-@dataclass   
+
+
+@dataclass
 class Variable:
     name: str
-    
-@dataclass    
+
+
+@dataclass
 class BoolType:
     pass
+
 
 @dataclass
 class BoolExpresion:
     pass
- 
+
+
 @dataclass
 class TokenError:
-    error: str 
+    error: str
+
 
 @dataclass
 class LeftP:
     pass
 
+
 @dataclass
 class RightP:
     pass
+
 
 @dataclass
 class ArrowR:
     pass
 
+
 @dataclass
 class LineLambda:
     pass
+
 
 @dataclass
 class UnitExpresion:
     pass
 
+
 @dataclass
 class UnitType:
     pass
 
+
 @dataclass
 class If:
     pass
+
 
 @dataclass
 class Then:
@@ -94,40 +109,43 @@ class Then:
 class Equals:
     pass
 
+
 @dataclass
-#Clase para recibir cadena de caracteres y la posiicon del carecter que se esta leyendo 
+# Clase para recibir cadena de caracteres y la posiicon del carecter que se esta leyendo
 class Stream:
-    value:str
+    value: str
     pos: int
-    
-    def __init__(self,value:str):
+
+    def __init__(self, value: str):
         self.pos = 0
-        self.value=value
-    
-        #Funcion que obtiene el caracter en la posicion "pos" de la cadena original
-    def get_char(self)->Optional[str]:
-        if len(self.value)>self.pos:
+        self.value = value
+
+        # Funcion que obtiene el caracter en la posicion "pos" de la cadena original
+
+    def get_char(self) -> Optional[str]:
+        if len(self.value) > self.pos:
             return self.value[self.pos]
         else:
-            #Esta parte podria saltarse y dejar que solo retorne None
-            return None 
-    #Funcion que aumenta la posicion del carecter a leer
+            # Esta parte podria saltarse y dejar que solo retorne None
+            return None
+
+    # Funcion que aumenta la posicion del carecter a leer
     def consume(self):
-        self.pos+=1   
-        
-    #Funcion que retorna el string de la clase
+        self.pos += 1
+
+    # Funcion que retorna el string de la clase
     def get_string(self):
         return str(self.value)
-    
-    #Funcion que regresa la posicion del caracter a leer
+
+    # Funcion que regresa la posicion del caracter a leer
     def get_posicion(self):
         return self.pos
-    
-    #Funcion que reescribe la poscion del caracter a leer
+
+    # Funcion que reescribe la poscion del caracter a leer
     def colcar_posicion(self, new_pos):
         self.pos = new_pos
-        
-    #Funcion que reescribe la poscion debido a una cadena 
+
+    # Funcion que reescribe la poscion debido a una cadena
     def salto_posicion(self, jump_pos):
         self.pos = self.pos + jump_pos
 
@@ -136,45 +154,49 @@ T = TypeVar("T")
 
 
 ###############################################################################
-#Funciones de is_some
+# Funciones de is_some
 ###############################################################################
-        
- #Funcion que verifica que el caraceter ingresado es un digito       
-def is_digit(string:str)->bool:
-    """ Esta funcion verifica el primer caracter de un string sea un dígito"""
-    if len(string)>0:
+
+
+# Funcion que verifica que el caraceter ingresado es un digito
+def is_digit(string: str) -> bool:
+    """Esta funcion verifica el primer caracter de un string sea un dígito"""
+    if len(string) > 0:
         digit = string[0]
         if digit >= "0" and digit <= "9":
             return True
-        else: 
+        else:
             return False
     else:
         return False
-       
 
-def lexer_space(stream:Stream)->Optional[str]:
+
+def lexer_space(stream: Stream) -> Optional[str]:
     f = lexer_string(" ", Int(1))
     f(stream)
-    
-    
+
 
 ###############################################################################
-'''!!!!!!!!!!!!!!!!!!!!!!!Funciones de Lexer_some!!!!!!!!!!!!!!!!!!!!!!!!!!!'''
+"""!!!!!!!!!!!!!!!!!!!!!!!Funciones de Lexer_some!!!!!!!!!!!!!!!!!!!!!!!!!!!"""
+
+
 ###############################################################################
-#Funcion  que verifica si una cadena de string esta dentro del stream
-def lexer_string(string:str, varType: T)->Callable[[Stream],Optional[T]]:
-    def lexer_interno(stream:Stream)->Optional[T]:
-        orig_post = stream.get_posicion()           #print(string,orig_post)
-        cadena_r = stream.get_string()              #print(cadena_r,"cadenaa",stream)
-        new_cadena=cadena_r[orig_post:]             #print(new_cadena,22222222222222222222)
+# Funcion  que verifica si una cadena de string esta dentro del stream
+def lexer_string(string: str, varType: T) -> Callable[[Stream], Optional[T]]:
+    def lexer_interno(stream: Stream) -> Optional[T]:
+        orig_post = stream.get_posicion()  # print(string,orig_post)
+        cadena_r = stream.get_string()  # print(cadena_r,"cadenaa",stream)
+        new_cadena = cadena_r[
+            orig_post:
+        ]  # print(new_cadena,22222222222222222222)
         if new_cadena is None:
             return None
         else:
             if new_cadena.startswith(string):
                 salto = int(len(string))
-         #       print(salto,"salto")
+                #       print(salto,"salto")
                 stream.salto_posicion(salto)
-          #      print(stream.get_posicion())
+                #      print(stream.get_posicion())
                 return varType
             else:
                 stream.colcar_posicion(orig_post)
@@ -182,57 +204,69 @@ def lexer_string(string:str, varType: T)->Callable[[Stream],Optional[T]]:
 
     return lexer_interno
 
-#Funcion que verifica que el caracter leido sea de la clase Variable 
+
+# Funcion que verifica que el caracter leido sea de la clase Variable
 # y regresa el segemento del string que sea del Variable
 ###############################################################################
-'''!!!!!!!!!!!!!!!!!!!!!!!Funciones de Lexer_variable!!!!!!!!!!!!!!!!!!!!!!!!!!!'''
+"""!!!!!!!!!!!!!!!!!!!!!!!Funciones de Lexer_variable!!!!!!!!!!!!!!!!!!!!!!!!!!!"""
+
+
 ###############################################################################
-def lexer_variable (stream:Stream)->Optional[Variable]:
-    acc:list[str]=[]
-    orig_post=stream.get_posicion()
-    char=stream.get_char()
+def lexer_variable(stream: Stream) -> Optional[Variable]:
+    acc: list[str] = []
+    orig_post = stream.get_posicion()
+    char = stream.get_char()
     if char is None:
         return None
-    else: 
-        if (char=="_")or(char>="a" and char<="z")or(char>="A" and char<="Z"):
+    else:
+        if (
+            (char == "_")
+            or (char >= "a" and char <= "z")
+            or (char >= "A" and char <= "Z")
+        ):
             acc.append(char)
             stream.consume()
-            char=stream.get_char()
+            char = stream.get_char()
             if char is None:
-                if  (acc[0]>="a" and acc[0]<="z")or(acc[0]>="A" and acc[0]<="Z"):
+                if (acc[0] >= "a" and acc[0] <= "z") or (
+                    acc[0] >= "A" and acc[0] <= "Z"
+                ):
                     return Variable(acc[0])
                 else:
                     stream.colcar_posicion(orig_post)
                     return None
-            while((char>="a" and char<="z")or(char>="A" and char<="Z")):
+            while (char >= "a" and char <= "z") or (
+                char >= "A" and char <= "Z"
+            ):
                 acc.append(char)
                 stream.consume()
-                char=stream.get_char()
+                char = stream.get_char()
                 if char is None:
                     break
-            
+
             return Variable("".join(acc))
         else:
-            return None  
-        
-#-------------------------------------------------------------------
+            return None
 
 
-#Funcion que verifica que el caracter leido sea de la clase Int
+# -------------------------------------------------------------------
+
+
+# Funcion que verifica que el caracter leido sea de la clase Int
 # y regresa el segemnto del string que sea del tipo Int
-def lexer_int(stream:Stream)->Optional[Int]:
-    acc:list[str]=[]
-    orig_post=stream.get_posicion()
+def lexer_int(stream: Stream) -> Optional[Int]:
+    acc: list[str] = []
+    orig_post = stream.get_posicion()
     num = stream.get_char()
     if num is None:
         return None
-    else: 
+    else:
         if num == "-":
             acc.append(num)
             stream.consume()
             num = stream.get_char()
             if num is not None:
-                if is_digit(num) :
+                if is_digit(num):
                     while is_digit(num):
                         acc.append(num)
                         stream.consume()
@@ -244,7 +278,7 @@ def lexer_int(stream:Stream)->Optional[Int]:
                 else:
                     stream.colcar_posicion(orig_post)
                     return None
-            else: 
+            else:
                 stream.colcar_posicion(orig_post)
                 return None
         elif is_digit(num):
@@ -257,152 +291,163 @@ def lexer_int(stream:Stream)->Optional[Int]:
         else:
             stream.colcar_posicion(orig_post)
             return None
-    return Int(int("".join(acc)))  
+    return Int(int("".join(acc)))
 
 
-#-------------------------------------------------------------------
-#Funcion que verifica que el caracter leido sea de la clase Operator
+# -------------------------------------------------------------------
+# Funcion que verifica que el caracter leido sea de la clase Operator
 # y regresa el segemnto del string que sea del tipo Operator
 
-def lexer_operator(stream:Stream)->Optional[Operator]:
-    index_oper = ["+","*","/","<=","<",">=",">","&","|","==","-"]
+
+def lexer_operator(stream: Stream) -> Optional[Operator]:
+    index_oper = ["+", "*", "/", "<=", "<", ">=", ">", "&", "|", "==", "-"]
     for i in index_oper:
-        '''        if i == "-":
-           orig_post = stream.get_posicion()
-            stream.consume()
-            num = stream.get_char()
-            if num is not None:
-                if is_digit(num):
-                    stream.colcar_posicion(orig_post)
-                    return None
-                else: 
-                    stream.colcar_posicion(orig_post)
-            else:
-                stream.colcar_posicion(orig_post)'''
-                
-        new_function = lexer_string(i,Operator(i))
+        """if i == "-":
+        orig_post = stream.get_posicion()
+         stream.consume()
+         num = stream.get_char()
+         if num is not None:
+             if is_digit(num):
+                 stream.colcar_posicion(orig_post)
+                 return None
+             else:
+                 stream.colcar_posicion(orig_post)
+         else:
+             stream.colcar_posicion(orig_post)"""
+
+        new_function = lexer_string(i, Operator(i))
         regreso = new_function(stream)
         if regreso is not None:
             return regreso
     return None
-        
-    
-    
-    
-    
 
-#-------------------------------------------------------------------
 
-def lexer_leftp(stream:Stream)->Optional[LeftP]:
-    new_function = lexer_string("(",LeftP())
+# -------------------------------------------------------------------
+
+
+def lexer_leftp(stream: Stream) -> Optional[LeftP]:
+    new_function = lexer_string("(", LeftP())
     regreso = new_function(stream)
     if regreso is not None:
         return regreso
     else:
         return None
 
+
 """f stream = 
  char '(' stream >>=  (\ x -> pure LeftP())"""
 
-#-------------------------------------------------------------------
+# -------------------------------------------------------------------
 
-def lexer_rightp(stream:Stream)->Optional[RightP]:
+
+def lexer_rightp(stream: Stream) -> Optional[RightP]:
     new_function = lexer_string(")", RightP())
     regreso = new_function(stream)
     return regreso
-    
-#-------------------------------------------------------------------
 
-def lexer_boolexpresion(stream:Stream)->Optional[BoolExpresion]:
-    new_function = lexer_string("bool",BoolExpresion())
+
+# -------------------------------------------------------------------
+
+
+def lexer_boolexpresion(stream: Stream) -> Optional[BoolExpresion]:
+    new_function = lexer_string("bool", BoolExpresion())
     regreso = new_function(stream)
     return regreso
-#-------------------------------------------------------------------
-def lexer_booltype(stream:Stream)->Optional[BoolType]:
-    new_function = lexer_string("True",BoolType())
+
+
+# -------------------------------------------------------------------
+def lexer_booltype(stream: Stream) -> Optional[BoolType]:
+    new_function = lexer_string("True", BoolType())
     regreso = new_function(stream)
     if regreso is None:
-        new_function = lexer_string("False",BoolType())
+        new_function = lexer_string("False", BoolType())
         regreso = new_function(stream)
     return regreso
 
-#-------------------------------------------------------------------
-def lexer_lineLambda(stream: Stream) -> Optional[LineLambda]:  
+
+# -------------------------------------------------------------------
+def lexer_lineLambda(stream: Stream) -> Optional[LineLambda]:
     new_function = lexer_string("->", LineLambda())
     regreso = new_function(stream)
     return regreso
 
-#-------------------------------------------------------------------
-def lexer_if(stream: Stream) -> Optional[If]:  
+
+# -------------------------------------------------------------------
+def lexer_if(stream: Stream) -> Optional[If]:
     new_function = lexer_string("if", If())
     regreso = new_function(stream)
     return regreso
 
-#-------------------------------------------------------------------
-def lexer_then(stream: Stream) -> Optional[Then]:  
+
+# -------------------------------------------------------------------
+def lexer_then(stream: Stream) -> Optional[Then]:
     new_function = lexer_string("then", Then())
     regreso = new_function(stream)
     return regreso
 
-#-------------------------------------------------------------------
-def lexer_equals(stream: Stream) -> Optional[Equals]: 
+
+# -------------------------------------------------------------------
+def lexer_equals(stream: Stream) -> Optional[Equals]:
     new_function = lexer_string("=", Equals())
     regreso = new_function(stream)
     return regreso
 
-#-------------------------------------------------------------------
-def lexer_unit_expresion(stream: Stream) -> Optional[UnitExpresion]: 
+
+# -------------------------------------------------------------------
+def lexer_unit_expresion(stream: Stream) -> Optional[UnitExpresion]:
     new_function = lexer_string("unit", UnitExpresion())
     regreso = new_function(stream)
     return regreso
 
-#-------------------------------------------------------------------
-def lexer_unit(stream: Stream) -> Optional[UnitType]: 
+
+# -------------------------------------------------------------------
+def lexer_unit(stream: Stream) -> Optional[UnitType]:
     new_function = lexer_string("Unit", UnitType())
     regreso = new_function(stream)
     return regreso
 
+
 ###############################################################################
-#Funcion Return_Token
+# Funcion Return_Token
 ###############################################################################
-def lexer_tokens(input_string:str)->list[T]: 
+def lexer_tokens(input_string: str) -> list[T]:
     char = []
-    error= 0
+    error = 0
     stream = Stream(input_string)
-    lexer_list=[lexer_space,
-                lexer_leftp,
-                lexer_boolexpresion,
-                lexer_booltype,
-                lexer_if,
-                lexer_lineLambda,
-                lexer_rightp,
-                lexer_then,
-                lexer_unit,
-                lexer_unit_expresion,
-                lexer_variable,
-                lexer_int,
-                lexer_operator,
-                lexer_equals
-                ]
+    lexer_list = [
+        lexer_space,
+        lexer_leftp,
+        lexer_boolexpresion,
+        lexer_booltype,
+        lexer_if,
+        lexer_lineLambda,
+        lexer_rightp,
+        lexer_then,
+        lexer_unit,
+        lexer_unit_expresion,
+        lexer_variable,
+        lexer_int,
+        lexer_operator,
+        lexer_equals,
+    ]
     tokens = []
     long = stream.get_posicion()
     while long < len(input_string):
         long = stream.get_posicion()
-        print(long,len(input_string),len(lexer_list))
+        print(long, len(input_string), len(lexer_list))
         for i in lexer_list:
             char = i(stream)
-            if char is not  None:
-                #typechar = type(char)
-                print(char,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",i)
+            if char is not None:
+                # typechar = type(char)
+                print(char, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", i)
                 tokens.append(char)
                 error = 0
                 break
             else:
-                print(char,"222222222222222222222222",error)
+                print(char, "222222222222222222222222", error)
                 error = error + 1
-            
-        if error == len(lexer_list) and long < len(input_string) :
-            
+
+        if error == len(lexer_list) and long < len(input_string):
             char = stream.get_char()
             if char == " ":
                 lexer_space(stream)
@@ -410,10 +455,8 @@ def lexer_tokens(input_string:str)->list[T]:
                 tokens.append(TokenError(char))
                 stream.consume()
             error = 0
-        print(tokens,'111111111111111111111111111')
+        print(tokens, "111111111111111111111111111")
     return tokens
-
-            
 
 
 """def id(x:T)->T:
@@ -424,35 +467,6 @@ def main():
     b = "a1"
     print(lexer_tokens(b))
 
-if __name__ =="__main__":
- main()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+if __name__ == "__main__":
+    main()

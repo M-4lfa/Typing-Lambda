@@ -119,8 +119,6 @@ def test_get_none_variable(cadena_prueba: str):
 
 ###############################################################################
 """Tests de some lexer Variable"""
-
-
 ###############################################################################
 @pytest.mark.parametrize(
     "string, result",
@@ -379,14 +377,40 @@ def test_get_posisicon_rightp(stream: str, result: int):
         ("booL", 0),
     ],
 )
-def test_get_posicion_boolexpresion(stream: str, result: int):
-    prueba_regresa_posicion(lexer_boolexpresion, stream, result)
+def test_get_posicion_boolextype(stream: str, result: int):
+    prueba_regresa_posicion(lexer_booltype, stream, result)
+    
+    
+    
+@pytest.mark.parametrize(
+    "cadena_prueba",
+    [
+        "flase",  # String vacio
+        "Trrue",  # String con carecter no definido
+        "true",  # string de otra clase
+        "false",  # String de otra clase
+        "    ",  # solomante un guion
+    ],
+)
+
+def test_get_boolexpresion_none(cadena_prueba: str):
+    prueba_regresa_None(lexer_boolexpresion, cadena_prueba)
+    
+
+@pytest.mark.parametrize(
+    "stream, result",
+    [
+        ("True", BoolExpresion(True)),
+        ("False", BoolExpresion(False)),
+    ],
+)
+
+def test_get_boolexpresion(stream: str, result: int):
+    prueba_regresa_some(lexer_boolexpresion, stream, result)
 
 
 ###############################################################################
 "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TBorrar Espacios!!!!!!!!!!!!!!!!!!!!!!!!!!"
-
-
 ###############################################################################
 @pytest.mark.parametrize(
     "string, result",
@@ -398,24 +422,25 @@ def test_get_posicion_spaces(string: str, result: int):
 
 ###############################################################################
 "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Test de return_token!!!!!!!!!!!!!!!!!!!!!!!!!!"
-
-
 ###############################################################################
 @pytest.mark.parametrize(
     "stream, result",
-    [
- #      ("!", [TokenError("!")]),
- #       ("a", [Variable("a")]),
- #       ("12", [Int(12)]),
- #       ("==", [Operator("==")]),
- #       ("(", [LeftP()]),
- #       ("a1", [Variable("a"), Int(1)]),
- #       ("a*1", [Variable("a"), Operator("*"), Int(1)]),
- #       ("Manzana1", [Variable("Manzana"), Int(1)]),
- #       ("==1", [Operator("=="), Int(1)]),
- #       ("(a1)", [LeftP(), Variable("a"), Int(1), RightP()]),
- #       ("bool", [BoolExpresion()]),
- #       ("->", [LineLambda()]),
+    [  ('', None)
+       ("!", [TokenError("!")]),
+        ("a", [Variable("a")]),
+        ("12", [Int(12)]),
+        ("==", [Operator("==")]),
+        ("(", [LeftP()]),
+        ("a1", [Variable("a"), Int(1)]),
+        ("a*1", [Variable("a"), Operator("*"), Int(1)]),
+        ("Manzana1", [Variable("Manzana"), Int(1)]),
+        ("==1", [Operator("=="), Int(1)]),
+        ("(a1)", [LeftP(), Variable("a"), Int(1), RightP()]),
+        ("bool", [BoolType()]),
+        ("False", [BoolExpresion(False)]),
+        ("True", [BoolExpresion(True)]),
+        ("True or False", [BoolExpresion(True),Variable("or"),BoolExpresion(False)]),
+        ("->", [LineLambda()]),
         (
             "Teorema if1+1==2then1+2=3",
             [

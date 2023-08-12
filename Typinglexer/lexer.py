@@ -58,7 +58,7 @@ class BoolType:
 
 @dataclass
 class BoolExpresion:
-    pass
+    name: bool
 
 
 @dataclass
@@ -173,11 +173,9 @@ def lexer_space(stream: Stream)->Optional[str]:
 
 def lexer_spaces(stream:Stream)->None:
     result = lexer_space(stream)
-    print(result,4444)
     while result is not None:
         #print(stream)
         result = lexer_space(stream)
-        print(result,"333")
     return None
     
 
@@ -355,18 +353,18 @@ def lexer_rightp(stream: Stream) -> Optional[RightP]:
 # -------------------------------------------------------------------
 
 
-def lexer_boolexpresion(stream: Stream) -> Optional[BoolExpresion]:
-    new_function = lexer_string("bool", BoolExpresion())
+def lexer_booltype(stream: Stream) -> Optional[BoolExpresion]:
+    new_function = lexer_string("bool", BoolType())
     regreso = new_function(stream)
     return regreso
 
 
 # -------------------------------------------------------------------
-def lexer_booltype(stream: Stream) -> Optional[BoolType]:
-    new_function = lexer_string("True", BoolType())
+def lexer_boolexpresion(stream: Stream) -> Optional[BoolType]:
+    new_function = lexer_string("True", BoolExpresion(True))
     regreso = new_function(stream)
     if regreso is None:
-        new_function = lexer_string("False", BoolType())
+        new_function = lexer_string("False", BoolExpresion(False))
         regreso = new_function(stream)
     return regreso
 
@@ -416,7 +414,7 @@ def lexer_unit(stream: Stream) -> Optional[UnitType]:
 ###############################################################################
 # Funcion Return_Token
 ###############################################################################
-def lexer_tokens(input_string: str)-> list[Token]:
+def lexer_tokens(input_string: str):
     char:Optional[Token]
     stream = Stream(input_string)
     lexer_list = [
@@ -447,7 +445,10 @@ def lexer_tokens(input_string: str)-> list[Token]:
             if  char2 is not None:
                 tokens.append(TokenError(char2))
             break
-    return tokens
+    if len(tokens)>0:
+        return tokens
+    else:
+        return None
 
 
 """def id(x:T)->T:
@@ -455,7 +456,7 @@ def lexer_tokens(input_string: str)-> list[Token]:
 
 
 def main():
-    b = "     a1"
+    b = ""
     print(lexer_tokens(b))
 
 

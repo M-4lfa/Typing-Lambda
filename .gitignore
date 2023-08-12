@@ -1,6 +1,6 @@
 # Byte-compiled / optimized / DLL files
 .pytest_cache
-Myvirualenv
+Myvirtualenv
 __pycache__/
 *.py[cod]
 *$py.class

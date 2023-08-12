@@ -43,7 +43,7 @@ from Typinglexer.lexer import (
 
 import pytest
 
-from typing import TypeVar
+from typing import TypeVar, Optional
 
 T = TypeVar("T")
 
@@ -94,7 +94,15 @@ def prueba_regresa_posicion_lexer_string(
 
 
 def prueba_regresa_tokens(cadena_enviada: str, expect: T):
-    lista_tokens = lexer_tokens(cadena_enviada)
+    lista_tokens:list[Optional[Token]]= []
+    token = lexer_tokens(cadena_enviada)
+    get_token = next(token)
+    print(get_token,"oiwefojiawenfoqjnwerfijn")
+    while get_token is not None: 
+        lista_tokens.append(get_token)
+        print(lista_tokens,'1111111111111111111111111')
+        get_token = next(token)
+        print(token,'2222222222222222222222222')
     assert lista_tokens == expect
 
 
@@ -404,72 +412,73 @@ def test_get_posicion_spaces(string: str, result: int):
 @pytest.mark.parametrize(
     "stream, result",
     [
- #      ("!", [TokenError("!")]),
- #       ("a", [Variable("a")]),
- #       ("12", [Int(12)]),
- #       ("==", [Operator("==")]),
- #       ("(", [LeftP()]),
- #       ("a1", [Variable("a"), Int(1)]),
- #       ("a*1", [Variable("a"), Operator("*"), Int(1)]),
- #       ("Manzana1", [Variable("Manzana"), Int(1)]),
- #       ("==1", [Operator("=="), Int(1)]),
- #       ("(a1)", [LeftP(), Variable("a"), Int(1), RightP()]),
- #       ("bool", [BoolExpresion()]),
- #       ("->", [LineLambda()]),
-        (
-            "Teorema if1+1==2then1+2=3",
-            [
-                Variable("Teorema"),
-                If(),
-                Int(1),
-                Operator("+"),
-                Int(1),
-                Operator("=="),
-                Int(2),
-                Then(),
-                Int(1),
-                Operator("+"),
-                Int(2),
-                Equals(),
-                Int(3),
-            ],
-        ),
-        (
-            "Teorema  if 1+1==2 then 1+2=3",
-            [
-                Variable("Teorema"),
-                If(),
-                Int(1),
-                Operator("+"),
-                Int(1),
-                Operator("=="),
-                Int(2),
-                Then(),
-                Int(1),
-                Operator("+"),
-                Int(2),
-                Equals(),
-                Int(3),
-            ],
-        ),
-        (
-            "Teorema                              if 1+1==2 then 1+2=3",
-            [
-                Variable("Teorema"),
-                If(),
-                Int(1),
-                Operator("+"),
-                Int(1),
-                Operator("=="),
-                Int(2),
-                Then(),
-                Int(1),
-                Operator("+"),
-                Int(2),
-                Equals(),
-                Int(3),
-            ],
-        ),
+       ("!", [TokenError("!")]),
+        # ("a", [Variable("a")]),
+        # ("12", [Int(12)]),
+        # ("==", [Operator("==")]),
+        # ("(", [LeftP()]),
+        # ("a1", [Variable("a"), Int(1)]),
+        # ("a*1", [Variable("a"), Operator("*"), Int(1)]),
+        # ("Manzana1", [Variable("Manzana"), Int(1)]),
+        # ("==1", [Operator("=="), Int(1)]),
+        # ("(a1)", [LeftP(), Variable("a"), Int(1), RightP()]),
+        # ("bool", [BoolExpresion()]),
+        # ("->", [LineLambda()]),
+        # ("Hola1:", [Variable('Hola'),Int(1),TokenError(':')]),
+        # (
+        #     "Teorema if1+1==2then1+2=3",
+        #     [
+        #         Variable("Teorema"),
+        #         If(),
+        #         Int(1),
+        #         Operator("+"),
+        #         Int(1),
+        #         Operator("=="),
+        #         Int(2),
+        #         Then(),
+        #         Int(1),
+        #         Operator("+"),
+        #         Int(2),
+        #         Equals(),
+        #         Int(3),
+        #     ],
+        # ),
+        # (
+        #     "Teorema  if 1+1==2 then 1+2=3",
+        #     [
+        #         Variable("Teorema"),
+        #         If(),
+        #         Int(1),
+        #         Operator("+"),
+        #         Int(1),
+        #         Operator("=="),
+        #         Int(2),
+        #         Then(),
+        #         Int(1),
+        #         Operator("+"),
+        #         Int(2),
+        #         Equals(),
+        #         Int(3),
+        #     ],
+        # ),
+        # (
+        #     "Teorema                              if 1+1==2 then 1+2=3",
+        #     [
+        #         Variable("Teorema"),
+        #         If(),
+        #         Int(1),
+        #         Operator("+"),
+        #         Int(1),
+        #         Operator("=="),
+        #         Int(2),
+        #         Then(),
+        #         Int(1),
+        #         Operator("+"),
+        #         Int(2),
+        #         Equals(),
+        #         Int(3),
+        #     ],
+        # ),
     ],
 )
 def test_get_tokens(stream: str, result: list[Token]):

@@ -6,7 +6,7 @@ Created on Mon Jul 10 12:10:34 2023
 Definición de clases
 """
 from dataclasses import dataclass
-from typing import Union, Optional, Callable, TypeVar
+from typing import Union, Optional, Callable, TypeVar, Generator
 
 Token = Union[
     "Variable",
@@ -142,7 +142,7 @@ class Stream:
 
     # Funcion que reescribe la poscion debido a una cadena
     def salto_posicion(self, jump_pos):
-        print(jump_pos)
+        #print(jump_pos)
         self.pos = self.pos + jump_pos
 
 
@@ -173,11 +173,11 @@ def lexer_space(stream: Stream)->Optional[str]:
 
 def lexer_spaces(stream:Stream)->None:
     result = lexer_space(stream)
-    print(result,4444)
+    #print(result,4444)
     while result is not None:
         #print(stream)
         result = lexer_space(stream)
-        print(result,"333")
+        #print(result,"333")
     return None
     
 
@@ -416,7 +416,7 @@ def lexer_unit(stream: Stream) -> Optional[UnitType]:
 ###############################################################################
 # Funcion Return_Token
 ###############################################################################
-def lexer_tokens(input_string: str)-> list[Token]:
+def lexer_tokens(input_string: str)-> Generator[Optional[Token], None, None]:
     char:Optional[Token]
     stream = Stream(input_string)
     lexer_list = [
@@ -434,29 +434,55 @@ def lexer_tokens(input_string: str)-> list[Token]:
         lexer_operator,
         lexer_equals
     ]
-    tokens :list[Token] = []
+    tokens:Optional[Token]
     while stream.get_char() is not None:
         lexer_spaces(stream)
         for i in lexer_list:
             char = i(stream)
             if char is not None:
-                tokens.append(char)
+                tokens = char
+                yield tokens
                 break
         if char is None:
             char2 = stream.get_char()
             if  char2 is not None:
-                tokens.append(TokenError(char2))
+                tokens = TokenError(char2)
+                yield tokens 
             break
-    return tokens
-
+    
+    yield None
 
 """def id(x:T)->T:
     return x"""
 
+def first_generator(n:int):
+    value = 0
+    while value < n:
+        yield value
+        value +=1
 
+
+def fib() -> Generator[int, None, None]:
+   first = 0
+   second = 1
+   while True:
+       yield first
+       first, second = second, first+second
+        
+        
 def main():
-    b = "     a1"
-    print(lexer_tokens(b))
+    lista_tokens:list[Optional[Token]]= []
+    token = lexer_tokens("Hola 333 *ifiawruh25345**  === liaer then ->")
+    get_token = next(token)
+    print(get_token)
+    while get_token is not None: 
+        lista_tokens.append(get_token)
+        get_token = next(token)
+        print(lista_tokens)
+    print("222222222222222222222222222")
+   
+    
+        
 
 
 if __name__ == "__main__":

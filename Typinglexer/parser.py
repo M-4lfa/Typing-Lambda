@@ -60,19 +60,32 @@ class TypeExpression:
 
 
 
-def parser_literal (tokens = list["LexerT.Token"])->Optional[Literal]:
-    new_tokens = tokens
-    if new_tokens is not None:
-        if isinstance(new_tokens[0], LexerT.BoolExpresion()):
-            literal = new_tokens[0]
-            return "a"
+def parser_literal (tokens = Optional[list["LexerT.Token"]])->Optional[Literal]:
+    print(tokens,"newtokens")
+    if tokens is not None:
+        new_tokens = tokens
+        if isinstance(new_tokens[0], LexerT.BoolExpresion):
+            if new_tokens[0] == LexerT.BoolExpresion(True):
+                return Literal(LexerT.Bool(True))
+            else:
+                return Literal(LexerT.Bool(False))
+        elif isinstance(new_tokens[0], LexerT.Int):
+            return Literal(new_tokens[0])
         else:
-            return "a"
+            return None
     else:
-        return "a"
+        return None
     
     
+def main(): 
+    a = LexerT.lexer_token("ñaldfjvh")
+    print(a)
+    b = parser_literal(a)
+    print(b)
 
+
+if __name__ == "__main__":
+    main()
 
 
 

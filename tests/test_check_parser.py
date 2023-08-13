@@ -34,10 +34,10 @@ import Typinglexer.lexer as LexerT
 
 
 def prueba_regresa_None(lexer, cadena_prueba: str):
-    token_prueba = LexerT.lexer_tokens(cadena_prueba)
-    print(token_prueba)
-    get_none = lexer(token_prueba)
-    print(get_none,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
+    list_tokens = LexerT.lexer_tokens(cadena_prueba)
+    print(list_tokens,"aaaaaaaaaaaaaaaaa")
+    get_none = lexer(list_tokens)
+    print(get_none,"zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz")
     assert get_none is None
 
 
@@ -56,10 +56,11 @@ def prueba_regresa_some(lexer, cadena_prueba: str, expect):
     "cadena_prueba",
     [
         "",  # String vacio
-        #"-2dfsg",  # String con carecter no definido
-        # "1234314",  # string de otra clase
-        # "*+*",  # String de otra clase
-        # "_",  # solomante un guion
+        "qarg-2dfsg",  # String con carecter no definido
+        "*1234314",  # string de otra clase
+        "*+*",  # String de otra clase
+        "_",  # solomante un guion
+        "bool"
     ],
 )
 def test_get_none_variable(cadena_prueba: str):
@@ -69,14 +70,15 @@ def test_get_none_variable(cadena_prueba: str):
 ###############################################################################
 """Tests de some lexer Variable"""
 ###############################################################################
-# @pytest.mark.parametrize(
-#     "string, result",
-#     [
-#         ("_a", Variable("_a"))
-#     ],
-# )
-# def test_get_some_variable(string: str, result: Variable):
-#     prueba_regresa_some(parser_literal, string, result)
+@pytest.mark.parametrize(
+    "string, result",
+    [
+        ("True", Literal(LexerT.Bool(True))),
+        ("False", Literal(LexerT.Bool(False)))
+    ],
+)
+def test_get_some_variable(string: str, result: Variable):
+    prueba_regresa_some(parser_literal, string, result)
 
 
 

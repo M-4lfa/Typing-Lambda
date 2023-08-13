@@ -159,8 +159,6 @@ def test_get_none_int(cadena_prueba: str):
 
 ###############################################################################
 """Tests de some lexer Int"""
-
-
 ###############################################################################
 @pytest.mark.parametrize(
     "string, result",
@@ -169,7 +167,8 @@ def test_get_none_int(cadena_prueba: str):
         ("5", Int(5)),  # Numero normal
         ("2142345", Int(2142345)),  # Numero largo
         ("1324asdf", Int(1324)),  # Numero cortado
-        ("1235-", Int(1235)),  # String cortado con
+        ("1235-", Int(1235)),
+        ("-1235SRG", Int(-1235)),# String cortado con
     ],
 )
 def test_get_some_int(string: str, result: Int):
@@ -200,8 +199,6 @@ def test_get_none_operator(cadena_prueba: str):
 
 ###############################################################################
 """Tests de some lexer Operator"""
-
-
 ###############################################################################
 @pytest.mark.parametrize(
     "string, result",
@@ -290,6 +287,7 @@ def test_get_posisicon_variable(stream: str, result: int):
         ("-", 0),  # No avanza cuando se envia -
         ("-qweqr", 0),  # No avanza cuando se envia - y otros caracteres
         ("123-e", 3),  # Se corta en el menos -
+        ("-23hds", 3),
     ],
 )
 def test_get_posisicon_int(stream: str, result: int):
@@ -425,10 +423,11 @@ def test_get_posicion_spaces(string: str, result: int):
 ###############################################################################
 @pytest.mark.parametrize(
     "stream, result",
-    [  ('', None)
+    [  ('', None),
        ("!", [TokenError("!")]),
         ("a", [Variable("a")]),
-        ("12", [Int(12)]),
+        ("-12", [Int(-12)]),
+        ("-2dfsg",[Int(-2),Variable('dfsg')]),
         ("==", [Operator("==")]),
         ("(", [LeftP()]),
         ("a1", [Variable("a"), Int(1)]),

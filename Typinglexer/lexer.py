@@ -269,16 +269,16 @@ def lexer_int(stream: Stream) -> Optional[Int]:
             acc.append(num)
             stream.consume()
             num = stream.get_char()
+            #print(num, stream,"11111111111111111111111111111111111111")
             if num is not None:
                 if is_digit(num):
                     while is_digit(num):
                         acc.append(num)
                         stream.consume()
                         num = stream.get_char()
+                        #print(num,stream,acc,"wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww")
                         if num is None:
                             break
-                    else:
-                        stream.colcar_posicion(orig_post)
                 else:
                     stream.colcar_posicion(orig_post)
                     return None
@@ -414,7 +414,7 @@ def lexer_unit(stream: Stream) -> Optional[UnitType]:
 ###############################################################################
 # Funcion Return_Token
 ###############################################################################
-def lexer_tokens(input_string: str):
+def lexer_tokens(input_string: str)-> Optional[list[Token]]:
     char:Optional[Token]
     stream = Stream(input_string)
     lexer_list = [
@@ -445,10 +445,11 @@ def lexer_tokens(input_string: str):
             if  char2 is not None:
                 tokens.append(TokenError(char2))
             break
-    if len(tokens)>0:
-        return tokens
-    else:
+        
+    if len(tokens) == 0:
         return None
+    else:
+        return tokens
 
 
 """def id(x:T)->T:
@@ -456,7 +457,7 @@ def lexer_tokens(input_string: str):
 
 
 def main():
-    b = ""
+    b = "     a1"
     print(lexer_tokens(b))
 
 

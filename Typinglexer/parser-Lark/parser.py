@@ -27,9 +27,11 @@ INT_LITERAL : /-?[1-9][0-9]*/ | /0+/
 
 OPE_SUM: "+" | "-" 
 OPE_MULT:  "*" | "/" 
+OPE_COMPUESTO.2 : "<=" | ">=" |  "==" 
+OPE_COMP: | "<" | ">" | "&" | "|" |"~"
 
 
-operator: OPE_SUM|OPE_MULT
+operator: OPE_SUM|OPE_MULT|OPE_COMPUESTO|OPE_COMP
 
 
 
@@ -41,7 +43,7 @@ variable_declaration : VARIABLE ":" type
 expression : VARIABLE
             |LITERAL
             | "(" expression expression ")" 
-            | "\" VARIABLE "->" expression
+            | "\\" VARIABLE "->" expression
             | "(" expression operator expression ")"
             | "if" expression "then" expression "else" expression
 
